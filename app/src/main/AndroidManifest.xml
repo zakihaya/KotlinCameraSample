@@ -29,7 +29,7 @@
         </activity>
         <provider
             android:name="androidx.core.content.FileProvider"
-            android:authorities="com.example.YourAppName.fileprovider"
+            android:authorities="net.zakihaya.kotlincamerasmaple"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data

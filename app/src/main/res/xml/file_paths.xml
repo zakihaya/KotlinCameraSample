@@ -3,4 +3,5 @@
     <external-files-path
         name="images"
         path="Pictures"/>
+    <!-- <external-path name="my_images" path="Android/data/net.zakihaya.kotlincamerasmaple/files/Pictures" /> -->
 </paths>

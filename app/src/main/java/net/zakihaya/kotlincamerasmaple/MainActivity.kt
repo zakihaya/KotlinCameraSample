@@ -40,6 +40,10 @@ import java.io.File
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 
+import android.Manifest
+import android.media.MediaScannerConnection
+import android.util.Log
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,9 +61,8 @@ class MainActivity : ComponentActivity() {
                     ) {
                         Button(onClick = {
 
-                            if (checkAndRequestPermissions()) {
-                                takePhoto()
-                            }
+                            // パーミッションのリクエスト
+                            requestPermissionLauncher.launch(Manifest.permission.CAMERA)
                         }) {
                             Text("Take Photo")
                         }
@@ -74,9 +77,20 @@ class MainActivity : ComponentActivity() {
     private val takePictureLauncher = registerForActivityResult(ActivityResultContracts.TakePicture()) { success ->
         if (success) {
             imageUri = Uri.fromFile(photoFile)
+            MediaScannerConnection.scanFile(
+                this,
+                arrayOf(imageUri.toString()),
+                null
+            ) { path, uri ->
+                // スキャン完了後にログを記録
+                Log.d("MediaScanner", "画像がスキャンされました: $path")
+            }
         }
     }
+    companion object {
+        const val REQUEST_CAMERA_PERMISSION = 101
 
+    }
 
     private fun createImageFile(): File {
         val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
@@ -91,11 +105,57 @@ class MainActivity : ComponentActivity() {
         photoFile = createImageFile()
         val photoURI: Uri = FileProvider.getUriForFile(
             this,
-            "com.example.cautionplaterecognition.fileprovider",
+            "net.zakihaya.kotlincamerasmaple",
             photoFile
         )
         takePictureLauncher.launch(photoURI)
     }
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            // パーミッションが許可された場合の処理
+            // カメラを起動
+            takePhoto()
+        } else {
+            // パーミッションが拒否された場合の処理
+            Toast.makeText(
+                this,
+                "カメラのパーミッションが必要です。設定から許可してください。",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+//    private fun checkAndRequestPermissions(): Boolean {
+//        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+//            if (ActivityCompat.shouldShowRequestPermissionRationale(this, android.Manifest.permission.CAMERA)) {
+//                // パーミッションが必要であることの説明を表示
+//                Toast.makeText(this, "カメラのパーミッションが必要です。設定から許可してください。", Toast.LENGTH_LONG).show()
+//            }
+//            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.CAMERA), REQUEST_CAMERA_PERMISSION)
+//            return false
+//        }
+//        return true
+//    }
+//
+//    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+//        if (requestCode == REQUEST_CAMERA_PERMISSION) {
+//            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                // パーミッションが許可されたらカメラを起動
+//                takePhoto()
+//            } else {
+//                // パーミッションが拒否された場合
+//                Toast.makeText(
+//                    this,
+//                    "カメラのパーミッションが必要です。設定から許可してください。",
+//                    Toast.LENGTH_SHORT
+//                ).show()
+//            }
+//        }
+//    }
 }
 
 @Composable
