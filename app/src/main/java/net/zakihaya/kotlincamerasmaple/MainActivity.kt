@@ -79,7 +79,7 @@ class MainActivity : ComponentActivity() {
             imageUri = Uri.fromFile(photoFile)
             MediaScannerConnection.scanFile(
                 this,
-                arrayOf(imageUri.toString()),
+                arrayOf(photoFile.path),
                 null
             ) { path, uri ->
                 // スキャン完了後にログを記録
@@ -93,7 +93,8 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun createImageFile(): File {
-        val storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+
         return File.createTempFile(
             "JPEG_${System.currentTimeMillis()}_",
             ".jpg",
@@ -105,7 +106,7 @@ class MainActivity : ComponentActivity() {
         photoFile = createImageFile()
         val photoURI: Uri = FileProvider.getUriForFile(
             this,
-            "net.zakihaya.kotlincamerasmaple",
+            "net.zakihaya.kotlincamerasmaple.fileprovider",
             photoFile
         )
         takePictureLauncher.launch(photoURI)
