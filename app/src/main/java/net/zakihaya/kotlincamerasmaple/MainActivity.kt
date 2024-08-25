@@ -106,7 +106,7 @@ class MainActivity : ComponentActivity() {
         photoFile = createImageFile()
         val photoURI: Uri = FileProvider.getUriForFile(
             this,
-            "net.zakihaya.kotlincamerasmaple.fileprovider",
+            "${applicationContext.packageName}.fileprovider",
             photoFile
         )
         takePictureLauncher.launch(photoURI)
